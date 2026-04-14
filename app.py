@@ -1,229 +1,140 @@
 from flask import Flask, render_template, request
-import random
+import struct
 import math
 
 app = Flask(__name__)
 
-# =====================================================
-# FAST MODULAR EXPONENTIATION (Notebook Format)
-# =====================================================
-def fast_mod_exp(base, exp, mod):
+def left_rotate(x, c):
+    return ((x << c) | (x >> (32-c))) & 0xffffffff
+
+
+def to_binary(byte_array):
+    return ' '.join(format(x, '08b') for x in byte_array)
+
+
+def md5_visual(message):
+
     steps = []
-    result = 1
-    base = base % mod
-    binary = bin(exp)[2:]
+    iteration_table = []
 
-    steps.append(f"Binary of exponent {exp} = {binary}")
-    steps.append("Using Square and Multiply Method")
-    steps.append("")
+    msg = bytearray(message, 'utf-8')
 
-    for bit in binary:
-        result = (result * result) % mod
-        steps.append(f"Square → result = result² mod {mod} = {result}")
+    steps.append(f"Original Message: {message}")
+    steps.append(f"ASCII Values: {list(msg)}")
 
-        if bit == '1':
-            result = (result * base) % mod
-            steps.append(f"Multiply → result = result × {base} mod {mod} = {result}")
+    binary = to_binary(msg)
+    steps.append(f"Binary Representation: {binary}")
 
-        steps.append("----")
+    original_len_bits = len(msg) * 8
+    steps.append(f"Original Length: {original_len_bits} bits")
 
-    steps.append(f"Final Result = {result}")
-    steps.append("")
-    return result, steps
+    msg.append(0x80)
 
+    while (len(msg)*8) % 512 != 448:
+        msg.append(0)
 
-# =====================================================
-# MILLER RABIN (Notebook Style)
-# =====================================================
-def miller_rabin(n, k=5):
-    steps = []
+    msg += struct.pack('<Q', original_len_bits)
 
-    if n < 2:
-        return False, ["Number < 2 → Not Prime"]
+    steps.append("Padding Applied → message + 1 bit + zeros + length")
 
-    if n in [2, 3]:
-        return True, ["Small Prime"]
+    padded_binary = to_binary(msg)
+    steps.append(f"Padded Block: {padded_binary}")
 
-    if n % 2 == 0:
-        return False, ["Even Number → Not Prime"]
+    A = 0x67452301
+    B = 0xefcdab89
+    C = 0x98badcfe
+    D = 0x10325476
 
-    d = n - 1
-    r = 0
-    while d % 2 == 0:
-        d //= 2
-        r += 1
+    steps.append(f"Initial Registers → A={hex(A)} B={hex(B)} C={hex(C)} D={hex(D)}")
 
-    steps.append("Primality Testing")
-    steps.append(f"{n}-1 = 2^{r} × {d}")
-    steps.append("")
+    K = [int(abs(math.sin(i+1))*(2**32)) & 0xffffffff for i in range(64)]
 
-    for i in range(k):
-        a = random.randint(2, n - 2)
-        steps.append(f"Round {i+1}: Choose a = {a}")
-        steps.append("")
+    s = [7,12,17,22]*4 + \
+        [5,9,14,20]*4 + \
+        [4,11,16,23]*4 + \
+        [6,10,15,21]*4
 
-        x, substeps = fast_mod_exp(a, d, n)
-        steps.extend(substeps)
+    for chunk_offset in range(0, len(msg), 64):
 
-        if x == 1 or x == n - 1:
-            steps.append("Probably Prime in this round")
-            steps.append("")
-            continue
+        chunk = msg[chunk_offset:chunk_offset+64]
+        M = list(struct.unpack('<16I', chunk))
 
-        for _ in range(r - 1):
-            x = (x * x) % n
-            steps.append(f"Square x → {x}")
+        steps.append("Message Words (32-bit each):")
 
-        steps.append("")
+        for i in range(16):
+            steps.append(f"M{i} = {hex(M[i])}")
 
-    steps.append("Probably Prime after all rounds")
-    steps.append("")
-    return True, steps
+        a,b,c,d = A,B,C,D
 
+        for i in range(64):
 
-# =====================================================
-# EXTENDED EUCLIDEAN
-# =====================================================
-def extended_gcd(a, b):
-    steps = []
-    old_r, r = a, b
-    old_s, s = 1, 0
-    old_t, t = 0, 1
+            if i <= 15:
+                F = (b & c) | (~b & d)
+                g = i
+                func="F"
 
-    steps.append("Extended Euclidean Steps")
-    steps.append("r | s | t")
-    steps.append("----------------")
+            elif i <= 31:
+                F = (d & b) | (~d & c)
+                g = (5*i + 1) % 16
+                func="G"
 
-    while r != 0:
-        q = old_r // r
-        steps.append(f"q = {q}")
-        steps.append(f"{r} | {s} | {t}")
-        steps.append("----")
+            elif i <= 47:
+                F = b ^ c ^ d
+                g = (3*i + 5) % 16
+                func="H"
 
-        old_r, r = r, old_r - q * r
-        old_s, s = s, old_s - q * s
-        old_t, t = t, old_t - q * t
+            else:
+                F = c ^ (b | ~d)
+                g = (7*i) % 16
+                func="I"
 
-    steps.append(f"GCD = {old_r}")
-    return old_r, old_s, steps
+            calc = (F + a + K[i] + M[g]) & 0xffffffff
+            rot = left_rotate(calc, s[i])
 
+            a_temp = d
+            d_temp = c
+            c_temp = b
+            b_temp = (b + rot) & 0xffffffff
 
-def mod_inverse(e, phi):
-    gcd, x, steps = extended_gcd(e, phi)
-    if gcd != 1:
-        return None, steps
+            iteration_table.append({
+                "i":i+1,
+                "func":func,
+                "M":g,
+                "K":hex(K[i]),
+                "shift":s[i],
+                "A":hex(a_temp),
+                "B":hex(b_temp),
+                "C":hex(c_temp),
+                "D":hex(d_temp)
+            })
 
-    d = x % phi
-    steps.append(f"Modular Inverse d = {d}")
-    return d, steps
+            a,b,c,d = a_temp,b_temp,c_temp,d_temp
+
+        A=(A+a)&0xffffffff
+        B=(B+b)&0xffffffff
+        C=(C+c)&0xffffffff
+        D=(D+d)&0xffffffff
+
+    result = struct.pack('<4I',A,B,C,D)
+    hash_result=''.join('{:02x}'.format(i) for i in result)
+
+    return hash_result, steps, iteration_table
 
 
-# =====================================================
-# CRT DECRYPTION
-# =====================================================
-def crt_decrypt(c, p, q, d):
-    steps = []
+@app.route("/",methods=["GET","POST"])
+def index():
 
-    dp = d % (p - 1)
-    dq = d % (q - 1)
+    hash_value=None
+    steps=[]
+    table=[]
 
-    steps.append("Decryption Steps")
-    steps.append(f"dp = d mod (p-1) = {dp}")
-    steps.append(f"dq = d mod (q-1) = {dq}")
-    steps.append("")
+    if request.method=="POST":
 
-    steps.append("Compute m1:")
-    m1, s1 = fast_mod_exp(c, dp, p)
-    steps.extend(s1)
+        msg=request.form["message"]
+        hash_value,steps,table=md5_visual(msg)
 
-    steps.append("Compute m2:")
-    m2, s2 = fast_mod_exp(c, dq, q)
-    steps.extend(s2)
-
-    q_inv = pow(q, -1, p)
-    steps.append(f"q inverse mod p = {q_inv}")
-
-    h = (q_inv * (m1 - m2)) % p
-    steps.append(f"h = {h}")
-
-    m = m2 + h * q
-    steps.append(f"Final m = {m}")
-    steps.append("")
-
-    return m, steps
+    return render_template("index.html",hash=hash_value,steps=steps,table=table)
 
 
-# =====================================================
-# ROUTES
-# =====================================================
-@app.route("/")
-def home():
-    return render_template("home.html")
-
-
-@app.route("/rsa", methods=["GET", "POST"])
-def rsa():
-
-    if request.method == "POST":
-        try:
-            p = int(request.form["p"])
-            q = int(request.form["q"])
-            e = int(request.form["e"])
-            message = request.form["message"]
-
-            p_prime, p_steps = miller_rabin(p)
-            q_prime, q_steps = miller_rabin(q)
-
-            if not p_prime or not q_prime:
-                return render_template("rsa.html",
-                                       error="p or q not prime",
-                                       p_steps=p_steps,
-                                       q_steps=q_steps)
-
-            n = p * q
-            phi = (p - 1) * (q - 1)
-
-            if math.gcd(e, phi) != 1:
-                return render_template("rsa.html",
-                                       error="e not coprime with φ(n)")
-
-            d, eea_steps = mod_inverse(e, phi)
-
-            cipher = []
-            enc_steps = ["Encryption Steps"]
-
-            for char in message:
-                m = ord(char)
-                enc_steps.append(f"ASCII('{char}') = {m}")
-                c, s = fast_mod_exp(m, e, n)
-                cipher.append(c)
-                enc_steps.extend(s)
-
-            decrypted = ""
-            dec_steps = []
-
-            for c in cipher:
-                m, s = crt_decrypt(c, p, q, d)
-                decrypted += chr(m)
-                dec_steps.extend(s)
-
-            return render_template("rsa.html",
-                                   p=p, q=q,
-                                   n=n, phi=phi,
-                                   e=e, d=d,
-                                   cipher=cipher,
-                                   decrypted=decrypted,
-                                   p_steps=p_steps,
-                                   q_steps=q_steps,
-                                   eea_steps=eea_steps,
-                                   enc_steps=enc_steps,
-                                   dec_steps=dec_steps)
-
-        except Exception as ex:
-            return render_template("rsa.html", error=str(ex))
-
-    return render_template("rsa.html")
-
-
-if __name__ == "__main__":
+if __name__=="__main__":
     app.run(debug=True)
