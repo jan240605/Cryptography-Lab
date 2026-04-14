@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RSA Algorithm</title>
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#141e30,#243b55);
+color:white;
+padding:30px;
+}
+input{
+padding:8px;
+margin:5px;
+border-radius:6px;
+border:none;
+}
+button{
+padding:8px 15px;
+border-radius:6px;
+border:none;
+background:#00c6ff;
+}
+.box{
+background:rgba(255,255,255,0.1);
+padding:15px;
+margin:15px 0;
+border-radius:10px;
+}
+a{color:yellow;}
+</style>
+</head>
+<body>
+
+<h1>RSA Algorithm</h1>
+
+<form method="POST">
+<input type="number" name="p" placeholder="Enter Prime p" required>
+<input type="number" name="q" placeholder="Enter Prime q" required>
+<input type="number" name="e" placeholder="Enter Public Exponent e" required>
+<input type="text" name="message" placeholder="Enter Message" required>
+<button type="submit">Run RSA</button>
+</form>
+
+<a href="/">← Back</a>
+
+{% if cipher %}
+
+<div class="box">
+<h2>Primality Testing</h2>
+{% for step in p_steps %}<p>{{step}}</p>{% endfor %}
+{% for step in q_steps %}<p>{{step}}</p>{% endfor %}
+</div>
+
+<div class="box">
+<h2>Key Generation</h2>
+<p>n = {{n}}</p>
+<p>φ(n) = {{phi}}</p>
+<p>Public Key = ({{e}}, {{n}})</p>
+<p>Private Key = ({{d}}, {{n}})</p>
+</div>
+
+<div class="box">
+<h2>Extended Euclidean Steps</h2>
+{% for step in eea_steps %}<p>{{step}}</p>{% endfor %}
+</div>
+
+<div class="box">
+<h2>Encryption Steps</h2>
+{% for step in enc_steps %}<p>{{step}}</p>{% endfor %}
+<p><b>Cipher:</b> {{cipher}}</p>
+</div>
+
+<div class="box">
+<h2>Decryption Steps (CRT)</h2>
+{% for step in dec_steps %}<p>{{step}}</p>{% endfor %}
+<p><b>Decrypted:</b> {{decrypted}}</p>
+</div>
+
+{% endif %}
+
+</body>
+</html>
