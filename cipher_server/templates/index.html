@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRT Cipher Tools</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 80px auto;
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #4a4a4a;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .cipher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .cipher-card {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            padding: 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cipher-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .cipher-card.affine {
+            background: linear-gradient(135deg, #89f7fe, #66a6ff);
+        }
+
+        .cipher-card.playfair {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔐 CRT Cipher Tools</h1>
+    <p>Explore classical encryption techniques with step-by-step visualization.</p>
+
+    <div class="cipher-grid">
+        <a href="/vigenere" class="cipher-card">
+            🔑 Vigenère Cipher
+        </a>
+
+        <a href="/affine" class="cipher-card affine">
+            📐 Affine Cipher
+        </a>
+
+        <a href="/playfair" class="cipher-card playfair">
+            🧩 Playfair Cipher
+        </a>
+    </div>
+
+    <footer>
+        Designed for Cryptography & Network Security (CRT) Lab
+    </footer>
+</div>
+
+</body>
+</html>
