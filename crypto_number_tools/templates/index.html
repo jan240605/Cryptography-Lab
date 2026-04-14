@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Number Theory Tools</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 80px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .euler {
+            background: linear-gradient(135deg, #43cea2, #185a9d);
+        }
+
+        .fermat {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+        }
+
+        .primitive {
+            background: linear-gradient(135deg, #f953c6, #b91d73);
+        }
+
+        footer {
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔢 Number Theory Tools</h1>
+    <p class="subtitle">Interactive demonstration of classical number theory algorithms</p>
+
+    <div class="cards">
+        <a href="/euler" class="card euler">Euler's Totient Theorem</a>
+        <a href="/fermat" class="card fermat">Fermat's Factorization</a>
+        <a href="/primitive" class="card primitive">Primitive Roots Theorem</a>
+    </div>
+
+    <footer>
+        Designed for Cryptography & Network Security (CRT) Lab
+    </footer>
+</div>
+
+</body>
+</html>
