@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AES</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#4e73df,#1cc88a);
+    padding:40px;
+}
+.container{
+    background:white;
+    padding:40px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    width:800px;
+    margin:auto;
+}
+button{
+    padding:10px 20px;
+    background:#1cc88a;
+    color:white;
+    border:none;
+    border-radius:8px;
+}
+.step-box{
+    background:#f8f9fc;
+    padding:10px;
+    margin:5px 0;
+    border-radius:5px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>🔐 AES-128 Encryption / Decryption</h2>
+
+<form method="POST">
+<input name="text" placeholder="Enter 16-character Text"><br><br>
+<input name="key" placeholder="Enter 16-character Key"><br><br>
+<button type="submit">Run AES</button>
+</form>
+
+<h3>Encrypted Output (HEX)</h3>
+<p>{{ result.enc }}</p>
+
+<h3>Decrypted Output</h3>
+<p>{{ result.dec }}</p>
+
+<h3>Round Keys (10 Rounds)</h3>
+{% for k in round_keys %}
+<div class="step-box">{{ k }}</div>
+{% endfor %}
+
+<h3>Calculation Steps</h3>
+{% for s in steps %}
+<div class="step-box">{{ s }}</div>
+{% endfor %}
+
+<br>
+<a href="/">⬅ Back</a>
+</div>
+
+</body>
+</html>
