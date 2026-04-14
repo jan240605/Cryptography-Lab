@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DH Simulator</title>
+    <style>
+        body{font-family:Arial; background:linear-gradient(135deg,#667eea,#764ba2); height:100vh; display:flex; justify-content:center; align-items:center; margin:0;}
+        .container{background:white; padding:40px; border-radius:12px; width:400px; box-shadow:0 15px 30px rgba(0,0,0,0.2); text-align:center;}
+        input{width:90%; padding:12px; margin:10px; border-radius:6px; border:1px solid #ccc;}
+        button{background:#667eea; color:white; border:none; padding:12px; border-radius:6px; width:96%; cursor:pointer;}
+        .error{color:#e53e3e; background:#fff5f5; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #feb2b2; font-size:14px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DH Key Exchange</h1>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}{% for msg in messages %}<div class="error">{{ msg }}</div>{% endfor %}{% endif %}
+        {% endwith %}
+        <form action="/dh" method="post">
+            <input type="number" name="q" placeholder="Prime Number (q)" required>
+            <input type="number" name="alpha" placeholder="Primitive Root (α)" required>
+            <input type="number" name="xA" placeholder="Alice Private Key" required>
+            <input type="number" name="xB" placeholder="Bob Private Key" required>
+            <button type="submit">Generate Keys</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
